@@ -140,7 +140,7 @@ def format_time(seconds):
 st.image("logo.png", width=100)  # Adjust width as needed
 
 # Title of the quiz
-st.title("Class Quiz")
+st.title("Excel Class Exercise")
 
 # Sidebar for student details and timer
 st.sidebar.title("Student Details")
