@@ -7,7 +7,7 @@ import pandas as pd
 questions = [
     {
         "question": "Which of the following is the correct formula to add cells A1 and B1 in Excel?",
-        "options": ["=A1+B1", "=SUM(A1 /:/ B1)", "=ADD(A1, B1)", "=A1-B1"],
+        "options": ["=A1+B1", "=SUM(A1 \:\ B1)", "=ADD(A1, B1)", "=A1-B1"],
         "answer": "=A1+B1"
     },
     {
