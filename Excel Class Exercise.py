@@ -3,11 +3,11 @@ import pandas as pd
 import os
 import time
 
-# Define the questions and choices
+# Define the questions and choices (using a reduced set of questions for clarity)
 questions = [
     {
         "question": "Which of the following is the correct formula to add cells A1 and B1 in Excel?",
-        "options": ["=A1+B1", "=SUM(A1`:`B1)", "=ADD(A1, B1)", "=A1-B1"],
+        "options": ["=A1+B1", "=SUM(A1:B1)", "=ADD(A1, B1)", "=A1-B1"],
         "answer": "=A1+B1"
     },
     {
@@ -19,93 +19,7 @@ questions = [
         "question": "Which of the following is not a logical operator in Excel?",
         "options": ["AND", "OR", "NOT", "IF"],
         "answer": "IF"
-    },
-    {
-        "question": "What will be the result of the formula =AND(TRUE, FALSE)?",
-        "options": ["TRUE", "FALSE", "ERROR", "#VALUE!"],
-        "answer": "FALSE"
-    },
-    {
-        "question": "Which function calculates the total sum of a range in Excel?",
-        "options": ["=SUM()", "=TOTAL()", "=ADD()", "=COUNT()"],
-        "answer": "=SUM()"
-    },
-    {
-        "question": "To find the smallest number in a range of cells, which function should you use?",
-        "options": ["=MINIMUM()", "=LOW()", "=MIN()", "=LEAST()"],
-        "answer": "=MIN()"
-    },
-    {
-        "question": "Which of the following can you do with Conditional Formatting in Excel?",
-        "options": ["Change cell values", "Format cells based on criteria", "Create Pivot Tables", "Apply data validation"],
-        "answer": "Format cells based on criteria"
-    },
-    {
-        "question": "How would you apply a color scale to a range of cells based on their values in Excel?",
-        "options": ["Use the Color function", "Use Data Validation", "Use Conditional Formatting", "Use the Find and Replace tool"],
-        "answer": "Use Conditional Formatting"
-    },
-    {
-        "question": "Which function is used to search for a value in the first column of a table and return a value in the same row from a specified column?",
-        "options": ["VLOOKUP", "HLOOKUP", "LOOKUP", "SEARCH"],
-        "answer": "VLOOKUP"
-    },
-    {
-        "question": "What does the FALSE parameter in the VLOOKUP function signify?",
-        "options": ["Approximate match", "Exact match", "Case-insensitive match", "Case-sensitive match"],
-        "answer": "Exact match"
-    },
-    {
-        "question": "What can you use Data Validation for in Excel?",
-        "options": ["To restrict the type of data that can be entered in a cell", "To perform complex calculations", "To format cells based on criteria", "To create charts and graphs"],
-        "answer": "To restrict the type of data that can be entered in a cell"
-    },
-    {
-        "question": "Which Data Validation criteria would you use to ensure a cell only accepts dates?",
-        "options": ["Text Length", "List", "Date", "Custom"],
-        "answer": "Date"
-    },
-    {
-        "question": "Which of the following is true about Pivot Tables in Excel?",
-        "options": ["They are used to summarize and analyze data", "They automatically update when the source data changes", "They are a type of chart", "They require complex formulas to create"],
-        "answer": "They are used to summarize and analyze data"
-    },
-    {
-        "question": "How can you refresh a Pivot Table to reflect changes in the source data?",
-        "options": ["Right-click the Pivot Table and select Refresh", "Double-click any cell in the Pivot Table", "Click Insert and then Refresh", "Delete the Pivot Table and create a new one"],
-        "answer": "Right-click the Pivot Table and select Refresh"
-    },
-    {
-        "question": "Which function counts the number of cells that contain numbers in a range?",
-        "options": ["=COUNT()", "=COUNTA()", "COUNTIF()", "COUNTBLANK()"],
-        "answer": "=COUNT()"
-    },
-    {
-        "question": "Which logical function returns TRUE if any of its arguments are TRUE?",
-        "options": ["OR", "AND", "NOT", "IF"],
-        "answer": "OR"
-    },
-    {
-        "question": "To find the largest number in a range of cells, which function should you use?",
-        "options": ["=MAXIMUM()", "=HIGH()", "=MAX()", "=MOST()"],
-        "answer": "=MAX()"
-    },
-    {
-        "question": "What is the shortcut to create a new Pivot Table in Excel?",
-        "options": ["Ctrl + N", "Alt + P", "Alt + N + V", "Ctrl + T"],
-        "answer": "Alt + N + V"
-    },
-    {
-        "question": "How can you highlight cells in Excel that are greater than a specific value?",
-        "options": ["Use Data Validation", "Use Find and Replace", "Use Conditional Formatting", "Use Text to Columns"],
-        "answer": "Use Conditional Formatting"
-    },
-    {
-        "question": "What function would you use to look up a value in a row and return a value from the same column?",
-        "options": ["VLOOKUP", "HLOOKUP", "LOOKUP", "SEARCH"],
-        "answer": "HLOOKUP"
     }
-
 ]
 
 # Path to the results file
@@ -130,13 +44,19 @@ def load_existing_data():
     else:
         return pd.DataFrame(columns=["Name", "Email", "Score"])
 
+# Function to format time
+def format_time(seconds):
+    minutes = seconds // 60
+    seconds = seconds % 60
+    return f"{int(minutes)}:{int(seconds):02d}"
+
 # Display the logo at the top
 st.image("logo.png", width=100)  # Adjust width as needed
 
 # Title of the quiz
 st.title("Class Quiz")
 
-# Sidebar for student details
+# Sidebar for student details and timer
 st.sidebar.title("Student Details")
 student_name = st.sidebar.text_input("Name")
 student_email = st.sidebar.text_input("Email")
@@ -171,14 +91,14 @@ elif student_name and student_email:
         remaining_time = 0
     else:
         # Display the countdown timer
-        st.sidebar.markdown(f"Time remaining: **{int(remaining_time // 60)}:{int(remaining_time % 60):02d}**")
+        st.sidebar.markdown(f"Time remaining: **{format_time(remaining_time)}**")
 
-        # Display current question and options
+        # Display the current question
         current_question = st.session_state.current_question
         question = questions[current_question]
         st.markdown(f"**Question {current_question + 1}:** {question['question']}")
         st.session_state.student_responses[current_question] = st.radio(
-            f"Select your answer for Question {current_question + 1}:", question["options"], key=current_question
+            "Select your answer:", question["options"], key=current_question
         )
 
         # Navigation buttons
@@ -193,37 +113,35 @@ elif student_name and student_email:
                 st.session_state.current_question += 1
         else:
             if col3.button("Submit"):
-                st.session_state.submitted = True
+                submit_quiz = True
 
-                # Submit quiz
-                if not student_name or not student_email:
-                    st.error("Please fill in both your name and email.")
+        # Submit quiz
+        if 'submit_quiz' in locals():
+            if not student_name or not student_email:
+                st.error("Please fill in both your name and email.")
+            else:
+                correct_answers = 0
+                total_questions = len(questions)
+
+                for i, q in enumerate(questions):
+                    if st.session_state.student_responses.get(i) == q["answer"]:
+                        correct_answers += 1
+
+                # Save student details and score
+                save_results(student_name, student_email, correct_answers)
+
+                # Display results
+                st.write(f"You answered {correct_answers} out of {total_questions} questions correctly.")
+
+                # Feedback message
+                if correct_answers == total_questions:
+                    st.success("Excellent! You got all questions right!")
+                elif correct_answers >= total_questions / 2:
+                    st.info("Good job! You got more than half of the questions right.")
                 else:
-                    correct_answers = 0
-                    total_questions = len(questions)
+                    st.warning("You need more practice. Better luck next time!")
 
-                    for i, q in enumerate(questions):
-                        if st.session_state.student_responses.get(i) == q["answer"]:
-                            correct_answers += 1
-
-                    # Save student details and score
-                    save_results(student_name, student_email, correct_answers)
-
-                    # Display results
-                    st.write(f"You answered {correct_answers} out of {total_questions} questions correctly.")
-
-                    # Feedback message
-                    if correct_answers == total_questions:
-                        st.success("Excellent! You got all questions right!")
-                    elif correct_answers >= total_questions / 2:
-                        st.info("Good job! You got more than half of the questions right.")
-                    else:
-                        st.warning("You need more practice. Better luck next time!")
-
-                    st.sidebar.success("Details submitted successfully!")
-
-                    # End the quiz
-                    st.error("Time's up! Your quiz has been automatically submitted.")
+                st.sidebar.success("Details submitted successfully!")
 
 # Admin section to download results
 st.sidebar.title("Admin Section")
