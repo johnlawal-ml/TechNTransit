@@ -1,13 +1,13 @@
 import streamlit as st
-import pandas as pd
-import os
 import time
+import os
+import pandas as pd
 
 # Define the questions and choices
 questions = [
     {
         "question": "Which of the following is the correct formula to add cells A1 and B1 in Excel?",
-        "options": ["=A1+B1", "=SUM(A1`:`B1)", "=ADD(A1, B1)", "=A1-B1"],
+        "options": ["=A1+B1", "=SUM(A1:B1)", "=ADD(A1, B1)", "=A1-B1"],
         "answer": "=A1+B1"
     },
     {
@@ -108,48 +108,12 @@ questions = [
 
 ]
 
-# Path to the results file
-results_file = "quiz_results.csv"
+# Timer settings
 total_time = 20 * 60  # 20 minutes in seconds
-
-# Function to save student details and scores
-def save_results(student_name, student_email, score):
-    if not os.path.exists(results_file):
-        # Create the file with headers if it doesn't exist
-        with open(results_file, "w") as f:
-            f.write("Name,Email,Score\n")
-
-    # Append the student's details and score to the file
-    with open(results_file, "a") as f:
-        f.write(f"{student_name},{student_email},{score}\n")
-
-# Function to load existing student data
-def load_existing_data():
-    if os.path.exists(results_file):
-        return pd.read_csv(results_file)
-    else:
-        return pd.DataFrame(columns=["Name", "Email", "Score"])
-
-# Function to format time
-def format_time(seconds):
-    minutes = seconds // 60
-    seconds = seconds % 60
-    return f"{int(minutes)}:{int(seconds):02d}"
-
-# Display the logo at the top
-st.image("logo.png", width=100)  # Adjust width as needed
-
-# Title of the quiz
-st.title("Excel Class Exercise")
-
-# Sidebar for student details and timer
-st.sidebar.title("Student Details")
-student_name = st.sidebar.text_input("Name")
-student_email = st.sidebar.text_input("Email")
 
 # Initialize session state variables
 if 'start_time' not in st.session_state:
-    st.session_state.start_time = None
+    st.session_state.start_time = time.time()
 if 'current_question' not in st.session_state:
     st.session_state.current_question = 0
 if 'student_responses' not in st.session_state:
@@ -157,15 +121,28 @@ if 'student_responses' not in st.session_state:
 if 'submitted' not in st.session_state:
     st.session_state.submitted = False
 
-# Load existing student data to check for duplicates
-existing_data = load_existing_data()
+# Function to format time
+def format_time(seconds):
+    minutes = seconds // 60
+    seconds = seconds % 60
+    return f"{int(minutes)}:{int(seconds):02d}"
 
-if student_email in existing_data["Email"].values:
-    st.sidebar.warning("You have already submitted your answers. Thank you!")
-elif student_name and student_email:
-    if st.session_state.start_time is None:
-        st.session_state.start_time = time.time()
+# Function to save student details and scores
+def save_results(name, email, score):
+    results_file = "quiz_results.csv"
+    if not os.path.exists(results_file):
+        with open(results_file, "w") as f:
+            f.write("Name,Email,Score\n")
+    with open(results_file, "a") as f:
+        f.write(f"{name},{email},{score}\n")
 
+# Sidebar for student details and timer
+st.sidebar.title("Student Details")
+name = st.sidebar.text_input("Name")
+email = st.sidebar.text_input("Email")
+
+# Ensure the name and email are entered
+if name and email:
     elapsed_time = time.time() - st.session_state.start_time
     remaining_time = total_time - elapsed_time
 
@@ -204,35 +181,33 @@ elif student_name and student_email:
 
         # Submit quiz
         if 'submit_quiz' in locals() and submit_quiz:
-            if not student_name or not student_email:
-                st.error("Please fill in both your name and email.")
+            correct_answers = 0
+            total_questions = len(questions)
+
+            for i, q in enumerate(questions):
+                if st.session_state.student_responses.get(i) == q["answer"]:
+                    correct_answers += 1
+
+            # Save student details and score
+            save_results(name, email, correct_answers)
+
+            # Display results
+            st.write(f"You answered {correct_answers} out of {total_questions} questions correctly.")
+
+            # Feedback message
+            if correct_answers == total_questions:
+                st.success("Excellent! You got all questions right!")
+            elif correct_answers >= total_questions / 2:
+                st.info("Good job! You got more than half of the questions right.")
             else:
-                correct_answers = 0
-                total_questions = len(questions)
+                st.warning("You need more practice. Better luck next time!")
 
-                for i, q in enumerate(questions):
-                    if st.session_state.student_responses.get(i) == q["answer"]:
-                        correct_answers += 1
-
-                # Save student details and score
-                save_results(student_name, student_email, correct_answers)
-
-                # Display results
-                st.write(f"You answered {correct_answers} out of {total_questions} questions correctly.")
-
-                # Feedback message
-                if correct_answers == total_questions:
-                    st.success("Excellent! You got all questions right!")
-                elif correct_answers >= total_questions / 2:
-                    st.info("Good job! You got more than half of the questions right.")
-                else:
-                    st.warning("You need more practice. Better luck next time!")
-
-                st.sidebar.success("Details submitted successfully!")
+            st.sidebar.success("Details submitted successfully!")
 
 # Admin section to download results
 st.sidebar.title("Admin Section")
 if st.sidebar.checkbox('Show download link for results'):
+    results_file = "quiz_results.csv"
     if os.path.exists(results_file):
         with open(results_file, 'rb') as f:
             st.sidebar.download_button(
