@@ -6,9 +6,9 @@ import pandas as pd
 # Define the questions and choices
 questions = [
     {
-        "question": "Which of the following is the correct formula to add cells A1 and B1 in Excel?",
-        "options": ["=A1+B1", "=SUM(A1 \: B1)", "=ADD(A1, B1)", "=A1-B1"],
-        "answer": "=A1+B1"
+        "question": "Which of the following is the correct formula to add cells A1 and B5 in Excel?",
+        "options": ["=A1+B5", "=SUM(A1 \: B5)", "=ADD(A1, B5)", "=A1-B5"],
+        "answer": "=A1+B5"
     },
     {
         "question": "What function would you use to calculate the average of a range of cells in Excel?",
