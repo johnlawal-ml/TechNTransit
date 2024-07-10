@@ -39,7 +39,7 @@ if st.session_state.test_started:
     st.session_state.time_left = timedelta(minutes=countdown_time) - (datetime.now() - st.session_state.start_time)
 
     # Display the timer
-    st.title("Quiz with Countdown Timer")
+    st.title("TechNTransit Excel Class Quiz")
     st.write("Time Left: ", format_time(st.session_state.time_left))
 
     # Stop the quiz if the time is up
